@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' https://upload.wikimedia.org https://*.google.com data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline';">
+  <title>Hotel Gran Sevilla</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px;
+    }
+
+    .hotel-header {
+      width: 100%;
+      max-width: 420px;
+      background: #2c3e50;
+      border-radius: 16px 16px 0 0;
+      padding: 28px 24px 20px;
+      color: white;
+    }
+
+    .hotel-nombre {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .hotel-subtitulo {
+      font-size: 14px;
+      opacity: 0.75;
+    }
+
+    .tarjeta {
+      width: 100%;
+      max-width: 420px;
+      background: white;
+      border-radius: 0 0 16px 16px;
+      padding: 24px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.10);
+    }
+
+    .huesped-nombre {
+      font-size: 20px;
+      font-weight: 600;
+      color: #1a1a2e;
+      margin-bottom: 4px;
+    }
+
+    .reserva-codigo {
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 20px;
+    }
+
+    .separador {
+      height: 1px;
+      background: #eeeeee;
+      margin: 16px 0;
+    }
+
+    .campos {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .campo {
+      flex: 1;
+    }
+
+    .campo-label {
+      font-size: 11px;
+      color: #999;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .campo-valor {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1a1a2e;
+    }
+
+    .wallet-btn {
+      width: 100%;
+      max-width: 420px;
+      margin-top: 24px;
+      background: #000;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 16px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: opacity 0.2s;
+    }
+
+    .wallet-btn:hover { opacity: 0.85; }
+    .wallet-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .wallet-btn svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .status {
+      width: 100%;
+      max-width: 420px;
+      margin-top: 16px;
+      text-align: center;
+      font-size: 14px;
+      color: #666;
+      min-height: 20px;
+    }
+
+    .status.exito { color: #27ae60; font-weight: 600; }
+    .status.error { color: #e74c3c; }
+  </style>
+</head>
+<body>
+
+  <div class="hotel-header">
+    <div class="hotel-nombre">Hotel Qinamical y Qinetica</div>
+    <div class="hotel-subtitulo">Confirmación de reserva</div>
+  </div>
+
+  <div class="tarjeta">
+    <div class="huesped-nombre">Carlos García</div>
+    <div class="reserva-codigo">Reserva #RES-12345</div>
+
+    <div class="separador"></div>
+
+    <div class="campos">
+      <div class="campo">
+        <div class="campo-label">Check-in</div>
+        <div class="campo-valor">15 Jun 2025</div>
+      </div>
+      <div class="campo">
+        <div class="campo-label">Check-out</div>
+        <div class="campo-valor">18 Jun 2025</div>
+      </div>
+      <div class="campo">
+        <div class="campo-label">Habitación</div>
+        <div class="campo-valor">304</div>
+      </div>
+    </div>
+
+    <div class="separador"></div>
+
+    <div class="campos">
+      <div class="campo">
+        <div class="campo-label">Tipo</div>
+        <div class="campo-valor">Doble superior</div>
+      </div>
+      <div class="campo">
+        <div class="campo-label">Huéspedes</div>
+        <div class="campo-valor">2</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Botón oficial Google Wallet -->
+  <button class="wallet-btn" id="walletBtn" disabled>
+    <svg viewBox="0 0 24 24" fill="white">
+      <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12zM6 10h2v4H6zm4 0h8v1h-8zm0 3h6v1h-6z"/>
+    </svg>
+    Añadir a Google Wallet
+  </button>
+
+  <div class="status" id="status">Cargando pase...</div>
+
+  <script>
+    const btn = document.getElementById('walletBtn');
+    const status = document.getElementById('status');
+    let jwtToken = null;
+
+    // Pedir el JWT al backend al cargar la página
+    async function cargarPase() {
+      try {
+        const res = await fetch('/api/pass/12345');
+        const data = await res.json();
+        jwtToken = data.jwt;
+
+        btn.disabled = false;
+        status.textContent = 'Pase listo para añadir a tu Wallet';
+      } catch (err) {
+        status.textContent = 'Error conectando con el servidor';
+        status.className = 'status error';
+      }
+    }
+
+    // Al pulsar el botón, redirigir a Google Wallet con el JWT
+    btn.addEventListener('click', () => {
+      if (!jwtToken) return;
+
+      const walletUrl = `https://pay.google.com/gp/v/save/${jwtToken}`;
+      window.location.href = walletUrl;
+    });
+
+    cargarPase();
+  </script>
+
+</body>
+</html>
