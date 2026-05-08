@@ -3,6 +3,7 @@ const { google } = require('googleapis');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
 const config = require('../config/walletConfig');
+require('dotenv').config()
 
 // Autenticación con la cuenta de servicio de Google Cloud
 const auth = new google.auth.GoogleAuth({
@@ -68,9 +69,9 @@ function buildPassObject(reserva) {
   return {
     id: objectId,
     classId: config.classId,
+    genericType: 'GENERIC_TYPE_UNSPECIFIED',
     state: 'ACTIVE',
 
-    // Datos del huésped y reserva
     cardTitle: {
       defaultValue: { language: 'es-ES', value: 'Reserva de hotel' },
     },
@@ -81,30 +82,12 @@ function buildPassObject(reserva) {
       defaultValue: { language: 'es-ES', value: reserva.nombreHuesped },
     },
 
-    // Logo del hotel (debe estar en HTTPS público)
-    logo: {
-      sourceUri: { uri: reserva.logoUrl },
-      contentDescription: {
-        defaultValue: { language: 'es-ES', value: 'Logo del hotel' },
-      },
-    },
-
-    // Imagen de cabecera
-    heroImage: {
-      sourceUri: { uri: reserva.heroImageUrl },
-      contentDescription: {
-        defaultValue: { language: 'es-ES', value: reserva.nombreHotel },
-      },
-    },
-
-    // Código QR de la reserva
     barcode: {
       type: 'QR_CODE',
       value: reserva.codigoReserva,
       alternateText: reserva.codigoReserva,
     },
 
-    // Campos personalizados visibles en el pase
     textModulesData: [
       {
         id: 'checkin',
@@ -123,8 +106,7 @@ function buildPassObject(reserva) {
       },
     ],
 
-    // Color corporativo del hotel (hex)
-    hexBackgroundColor: reserva.colorHotel || '#1a1a2e',
+    hexBackgroundColor: reserva.colorHotel || '#2c3e50',
   };
 }
 
@@ -135,7 +117,7 @@ async function generatePassJwt(reserva) {
   const claims = {
     iss: config.credentials.client_email,
     aud: 'google',
-    origins: [],
+    origins: ['https://pay.google.com'],
     typ: 'savetowallet',
     payload: {
       genericObjects: [passObject],
@@ -144,6 +126,7 @@ async function generatePassJwt(reserva) {
 
   const token = jwt.sign(claims, config.credentials.private_key, {
     algorithm: 'RS256',
+    expiresIn: '1h',
   });
 
   return token;
