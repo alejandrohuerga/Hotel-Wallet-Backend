@@ -10,12 +10,12 @@ router.get('/pass/:reservaId', async (req, res) => {
     // Por ahora los simulamos para probar
     const reserva = {
       id: req.params.reservaId,
-      nombreHotel: 'Hotel Ejemplo',
-      nombreHuesped: 'Alejandro De la Huerga',
+      nombreHotel: 'Hotel Ejemplo 2',
+      nombreHuesped: 'Alvaro Garcia',
       codigoReserva: `RES-${req.params.reservaId}`,
-      fechaCheckin: '15 Jun 2025',
-      fechaCheckout: '18 Jun 2025',
-      numeroHabitacion: '304',
+      fechaCheckin: '18 Jun 2025',
+      fechaCheckout: '25 Jun 2025',
+      numeroHabitacion: '34',
       colorHotel: '#2c3e50',
       logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Culinary_fruits_front_view.jpg/320px-Culinary_fruits_front_view.jpg',
       heroImageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Culinary_fruits_front_view.jpg/640px-Culinary_fruits_front_view.jpg',
